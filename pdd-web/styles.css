@@ -129,8 +129,7 @@ input:focus {
     font-size: 19px;
 }
 
-.brand p,
-.server-card label {
+.brand p {
     color: #aebbd0;
 }
 
@@ -158,19 +157,6 @@ input:focus {
 
 .nav-item.active {
     border-color: rgba(255, 255, 255, 0.24);
-}
-
-.server-card {
-    display: grid;
-    gap: 10px;
-    padding-top: 22px;
-    border-top: 1px solid rgba(255, 255, 255, 0.13);
-}
-
-.server-card input {
-    background: #0b1220;
-    border-color: #2b374b;
-    color: #fff;
 }
 
 .main {

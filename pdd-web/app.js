@@ -3,13 +3,6 @@
     const { qs, showToast } = PDD.utils;
 
     function bindShellEvents() {
-        qs('#saveBaseUrl').addEventListener('click', () => {
-            const value = qs('#baseUrl').value.trim();
-            PDD.state.saveBaseUrl(value);
-            showToast('服务地址已保存', 'success');
-            PDD.router.refresh();
-        });
-
         qs('#loginPageBtn').addEventListener('click', () => {
             window.location.href = './login.html';
         });
@@ -27,7 +20,6 @@
 
     function renderSession() {
         const state = PDD.state.data;
-        qs('#baseUrl').value = state.baseUrl;
         if (PDD.state.isAuthenticated()) {
             qs('#loginState').textContent = `${state.user.username} · ${state.user.role}`;
             qs('#loginPageBtn').classList.add('hidden');

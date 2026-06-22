@@ -3,7 +3,6 @@
     const { qs, qsa, showToast } = PDD.utils;
 
     function init() {
-        qs('#baseUrl').value = PDD.state.data.baseUrl;
         qs('#loginBtn').addEventListener('click', () => submit(false));
         qs('#registerBtn').addEventListener('click', () => submit(true));
         qs('#password').addEventListener('keydown', (event) => {
@@ -22,7 +21,6 @@
     }
 
     async function submit(register) {
-        const baseUrl = qs('#baseUrl').value.trim();
         const username = qs('#username').value.trim();
         const password = qs('#password').value.trim();
         if (!username || !password) {
@@ -30,7 +28,6 @@
             return;
         }
 
-        PDD.state.saveBaseUrl(baseUrl);
         const result = register
             ? await PDD.api.auth.register({ username, password })
             : await PDD.api.auth.login({ username, password });

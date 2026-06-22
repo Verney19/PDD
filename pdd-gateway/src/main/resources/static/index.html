@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDD 618 秒杀平台</title>
+    <title>PDD 618 秒杀抽奖平台</title>
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -13,157 +13,59 @@
             <div class="brand-mark">618</div>
             <div>
                 <h1>PDD 秒杀平台</h1>
-                <p>Flash Sale Console</p>
+                <p>618 限量手机专场</p>
             </div>
         </div>
 
-        <nav class="nav">
-            <button class="nav-item active" data-view="dashboard">活动看板</button>
-            <button class="nav-item" data-view="lottery">抽奖中心</button>
-            <button class="nav-item" data-view="orders">我的订单</button>
-            <button class="nav-item" data-view="ops">演示操作</button>
+        <nav class="nav" aria-label="主导航">
+            <button class="nav-item active" data-route="dashboard">总览</button>
+            <button class="nav-item" data-route="products">商品中心</button>
+            <button class="nav-item" data-route="activities">活动中心</button>
+            <button class="nav-item" data-route="seckill">秒杀入口</button>
+            <button class="nav-item" data-route="lottery">抽奖中心</button>
+            <button class="nav-item" data-route="orders">我的订单</button>
         </nav>
 
-        <div class="server-card">
-            <label for="baseUrl">网关地址</label>
-            <input id="baseUrl" value="http://localhost:8080">
-            <button id="saveBaseUrl" class="ghost-button">保存地址</button>
-        </div>
     </aside>
 
     <main class="main">
         <header class="topbar">
             <div>
-                <p class="eyebrow">100000 台手机 · 90000 秒杀 · 10000 抽奖</p>
-                <h2>618 手机发放中心</h2>
+                <p id="pageSubtitle" class="eyebrow">100000 台手机 · 90000 台秒杀 · 10000 台抽奖</p>
+                <h2 id="pageTitle">618 手机发放中心</h2>
             </div>
             <div class="user-box">
                 <span id="loginState">未登录</span>
-                <button id="logoutBtn" class="ghost-button hidden">退出</button>
+                <button id="loginPageBtn" class="secondary-button">登录</button>
+                <button id="logoutBtn" class="secondary-button hidden">退出</button>
             </div>
         </header>
 
-        <section id="authPanel" class="panel auth-panel">
-            <div>
-                <h3>登录演示账号</h3>
-                <p>默认账号：demo / 123456</p>
-            </div>
-            <div class="auth-form">
-                <input id="username" placeholder="用户名" value="demo">
-                <input id="password" placeholder="密码" type="password" value="123456">
-                <button id="loginBtn">登录</button>
-                <button id="registerBtn" class="ghost-button">注册</button>
-            </div>
-        </section>
-
-        <section id="dashboardView" class="view active">
-            <div class="metrics">
-                <div class="metric">
-                    <span>总库存</span>
-                    <strong>100000</strong>
-                </div>
-                <div class="metric">
-                    <span>秒杀库存</span>
-                    <strong>90000</strong>
-                </div>
-                <div class="metric">
-                    <span>抽奖库存</span>
-                    <strong>10000</strong>
-                    <small>一等奖 10 台 iPhone 17 Plus</small>
-                </div>
-                <div class="metric">
-                    <span>网关端口</span>
-                    <strong>8080</strong>
-                </div>
-            </div>
-
-            <div class="section-head">
-                <div>
-                    <h3>活动列表</h3>
-                    <p>秒杀 20:00 开始，抽奖 20:45 开始</p>
-                </div>
-                <button id="refreshActivitiesBtn" class="ghost-button">刷新</button>
-            </div>
-            <div id="activityList" class="activity-list"></div>
-        </section>
-
-        <section id="lotteryView" class="view">
-            <div class="lottery-layout">
-                <div class="board-panel">
-                    <div class="board-copy">
-                        <span>618 幸运抽奖</span>
-                        <strong>轮盘/棋盘转动，一抽定奖</strong>
-                    </div>
-                    <div id="lotteryBoard" class="lottery-board-wrap"></div>
-                    <div id="lotteryResult" class="lottery-result">登录后可参与 618 棋盘抽奖。</div>
-                    <div id="winnerTicker" class="winner-ticker">
-                        <div class="winner-ticker-head">
-                            <div>
-                                <span>实时中奖显示屏</span>
-                                <strong>系统用户中奖播报</strong>
-                            </div>
-                            <small>仅展示大奖、一/二/三等奖</small>
-                        </div>
-                        <div class="winner-feed-list" data-winner-feed>
-                            <div class="winner-feed-empty">暂无高等级中奖播报</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="prize-panel panel">
-                    <div class="section-title">
-                        <h3>奖池规则</h3>
-                        <p>普通用户每日 3 次抽奖机会，管理端可重复验证数据库奖池。</p>
-                    </div>
-                    <div class="prize-stats">
-                        <div>
-                            <span>总中奖率</span>
-                            <strong>手机 50% / Mac 60%</strong>
-                        </div>
-                        <div>
-                            <span>奖池来源</span>
-                            <strong>数据库权重</strong>
-                        </div>
-                    </div>
-                    <div id="prizeList" class="prize-list"></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="ordersView" class="view">
-            <div class="section-head">
-                <div>
-                    <h3>我的订单</h3>
-                    <p>订单由 RabbitMQ 异步消费后生成</p>
-                </div>
-                <button id="refreshOrdersBtn" class="ghost-button">刷新订单</button>
-            </div>
-            <div id="orderList" class="table-wrap"></div>
-        </section>
-
-        <section id="opsView" class="view">
-            <div class="ops-grid">
-                <div class="panel">
-                    <h3>库存预热</h3>
-                    <p>将 MySQL 活动库存写入 Redis，秒杀前必须执行。</p>
-                    <button id="preloadBtn">预热全部活动库存</button>
-                </div>
-                <div class="panel">
-                    <h3>手动开奖</h3>
-                    <p>演示环境可手动触发抽奖开奖，生产环境应限制管理员权限。</p>
-                    <button id="drawBtn">触发抽奖开奖</button>
-                </div>
-                <div class="panel">
-                    <h3>中奖查询</h3>
-                    <p>查询当前登录用户是否在中奖集合中。</p>
-                    <button id="winnerBtn">查询中奖结果</button>
-                </div>
-            </div>
-        </section>
-
+        <section id="appView" class="view-host"></section>
         <div id="toast" class="toast hidden"></div>
     </main>
 </div>
 
+<script src="./src/core/constants.js"></script>
+<script src="./src/core/utils.js"></script>
+<script src="./src/core/state.js"></script>
+<script src="./src/core/http.js"></script>
+<script src="./src/core/components.js"></script>
+<script src="./src/api/authApi.js"></script>
+<script src="./src/api/productApi.js"></script>
+<script src="./src/api/activityApi.js"></script>
+<script src="./src/api/seckillApi.js"></script>
+<script src="./src/api/lotteryApi.js"></script>
+<script src="./src/api/orderApi.js"></script>
+<script src="./src/core/router.js"></script>
+<script src="./src/pages/dashboardPage.js"></script>
+<script src="./src/pages/productsPage.js"></script>
+<script src="./src/pages/activitiesPage.js"></script>
+<script src="./src/pages/seckillPage.js"></script>
+<script src="./src/pages/lotteryPage.js"></script>
+<script src="./src/pages/ordersPage.js"></script>
+<script src="./src/pages/opsPage.js"></script>
+<script src="./src/pages/topologyPage.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>

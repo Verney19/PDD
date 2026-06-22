@@ -1,6 +1,10 @@
 # PDD 618 秒杀与抽奖平台
 
-一个 Spring Cloud 微服务项目，模拟 618 手机大促：总库存 100000 台，其中 90000 台通过秒杀售卖，10000 台通过抽奖发放。项目覆盖网关鉴权、库存预热、Redis Lua 原子扣减、RabbitMQ 削峰异步下单、MyBatis-Plus 持久化、Nacos 注册发现、Docker Compose 本地环境和原生前端页面。
+本项目95%是基于codex+gpt-5.5辅助完成，但依然属于作者原创项目，主要目的是主流技术栈应用和AI coding能力的锻炼，该项目仅作为新手实操项目，距离真实业务平台功能还有待完善。
+
+这是一个 Spring Cloud 微服务项目，模拟 618 手机大促：总库存 100000 台，其中 90000 台通过秒杀售卖，10000 台通过抽奖发放。项目覆盖网关鉴权、库存预热、Redis Lua 原子扣减、RabbitMQ 削峰异步下单、MyBatis-Plus 持久化、Nacos 注册发现、Docker Compose 本地环境和原生前端页面。
+
+
 
 ## 技术栈
 
@@ -61,22 +65,10 @@
 cd D:\Java\projects\PDD_
 ```
 
-启动 MySQL、Redis、RabbitMQ、Nacos：
-
-```powershell
-docker compose up -d mysql redis rabbitmq nacos
-```
-
 打包后端服务：
 
 ```powershell
 mvn clean package -DskipTests
-```
-
-启动 6 个后端服务：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\run-services.ps1
 ```
 
 如果只是重启服务，没有改代码，可以跳过 Maven 打包：
@@ -99,13 +91,7 @@ curl http://localhost:8080/actuator/health
 {"status":"UP"}
 ```
 
-前端页面直接用浏览器打开：
-
-```text
-file:///D:/Java/projects/PDD_/pdd-web/index.html
-```
-
-页面里的网关地址保持：
+打开浏览器访问：
 
 ```text
 http://localhost:8080
@@ -175,7 +161,7 @@ pdd-gateway
 - 网关健康检查：http://localhost:8080/actuator/health
 - Nacos 控制台：http://localhost:8848/nacos
 - RabbitMQ 管理台：http://localhost:15672
-- 前端页面：`file:///D:/Java/projects/PDD_/pdd-web/index.html`
+- 前端页面：http://localhost:8080
 
 RabbitMQ 默认账号：
 
@@ -246,11 +232,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-services.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\stop-services.ps1
 ```
 
-浏览器打开 `http://localhost:8080/` 看到 404 JSON 时，不代表后端坏了。`8080` 是 API 网关，前端推荐直接打开：
-
-```text
-file:///D:/Java/projects/PDD_/pdd-web/index.html
-```
+直接通过浏览器访问 `http://localhost:8080` 即可使用完整的前端页面，无需再通过 `file://` 协议打开静态文件。
 
 如果活动显示未开始，是因为初始化活动时间在 `sql/init.sql` 中，演示时可以把数据库里的 `pdd_activity.start_time` 和 `end_time` 调整到当前时间窗口。
 
