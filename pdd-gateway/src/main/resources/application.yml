@@ -1,0 +1,58 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: pdd-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: "*"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers: "*"
+            exposed-headers: "*"
+            allow-credentials: true
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: auth
+          uri: lb://pdd-auth-service
+          predicates:
+            - Path=/api/auth/**
+        - id: product
+          uri: lb://pdd-product-service
+          predicates:
+            - Path=/api/products/**,/api/activities/**
+        - id: order
+          uri: lb://pdd-order-service
+          predicates:
+            - Path=/api/orders/**
+        - id: seckill
+          uri: lb://pdd-seckill-service
+          predicates:
+            - Path=/api/seckill/**
+        - id: lottery
+          uri: lb://pdd-lottery-service
+          predicates:
+            - Path=/api/lottery/**
+
+pdd:
+  jwt:
+    secret: ${JWT_SECRET:pdd-flash-sale-platform-secret-key-must-be-32-bytes}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway

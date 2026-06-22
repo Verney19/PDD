@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDD 618 秒杀抽奖平台</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">618</div>
+            <div>
+                <h1>PDD 秒杀平台</h1>
+                <p>618 限量手机专场</p>
+            </div>
+        </div>
+
+        <nav class="nav" aria-label="主导航">
+            <button class="nav-item active" data-route="dashboard">总览</button>
+            <button class="nav-item" data-route="products">商品中心</button>
+            <button class="nav-item" data-route="activities">活动中心</button>
+            <button class="nav-item" data-route="seckill">秒杀入口</button>
+            <button class="nav-item" data-route="lottery">抽奖中心</button>
+            <button class="nav-item" data-route="orders">我的订单</button>
+        </nav>
+
+        <div class="server-card">
+            <label for="baseUrl">服务地址</label>
+            <input id="baseUrl" value="http://localhost:8080" autocomplete="off">
+            <button id="saveBaseUrl" class="secondary-button">保存地址</button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <p id="pageSubtitle" class="eyebrow">100000 台手机 · 90000 台秒杀 · 10000 台抽奖</p>
+                <h2 id="pageTitle">618 手机发放中心</h2>
+            </div>
+            <div class="user-box">
+                <span id="loginState">未登录</span>
+                <button id="loginPageBtn" class="secondary-button">登录</button>
+                <button id="logoutBtn" class="secondary-button hidden">退出</button>
+            </div>
+        </header>
+
+        <section id="appView" class="view-host"></section>
+        <div id="toast" class="toast hidden"></div>
+    </main>
+</div>
+
+<script src="./src/core/constants.js"></script>
+<script src="./src/core/utils.js"></script>
+<script src="./src/core/state.js"></script>
+<script src="./src/core/http.js"></script>
+<script src="./src/core/components.js"></script>
+<script src="./src/api/authApi.js"></script>
+<script src="./src/api/productApi.js"></script>
+<script src="./src/api/activityApi.js"></script>
+<script src="./src/api/seckillApi.js"></script>
+<script src="./src/api/lotteryApi.js"></script>
+<script src="./src/api/orderApi.js"></script>
+<script src="./src/core/router.js"></script>
+<script src="./src/pages/dashboardPage.js"></script>
+<script src="./src/pages/productsPage.js"></script>
+<script src="./src/pages/activitiesPage.js"></script>
+<script src="./src/pages/seckillPage.js"></script>
+<script src="./src/pages/lotteryPage.js"></script>
+<script src="./src/pages/ordersPage.js"></script>
+<script src="./src/pages/opsPage.js"></script>
+<script src="./src/pages/topologyPage.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

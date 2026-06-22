@@ -1,0 +1,28 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: pdd-seckill-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:pdd}
+    password: ${RABBITMQ_PASSWORD:pdd123456}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+
+pdd:
+  worker-id: 4
+  jwt:
+    secret: ${JWT_SECRET:pdd-flash-sale-platform-secret-key-must-be-32-bytes}

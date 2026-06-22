@@ -1,0 +1,60 @@
+### 注册
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "123456"
+}
+
+### 登录，复制 token 到下面变量
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "demo",
+  "password": "123456"
+}
+
+### 活动列表
+GET http://localhost:8080/api/activities
+Authorization: Bearer {{token}}
+
+### 预热全部活动库存到 Redis
+POST http://localhost:8080/api/activities/preload
+Authorization: Bearer {{token}}
+
+### 秒杀，活动时间为 2026-06-18 20:00:00
+POST http://localhost:8080/api/seckill/grab
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "activityId": 900001
+}
+
+### 报名抽奖，开奖时间为 2026-06-18 20:45:00
+POST http://localhost:8080/api/lottery/join
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "activityId": 100001
+}
+
+### 手动开奖，演示环境可修改数据库 start_time 到当前时间之前
+POST http://localhost:8080/api/lottery/draw
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "activityId": 100001
+}
+
+### 查询是否中奖
+GET http://localhost:8080/api/lottery/100001/winner
+Authorization: Bearer {{token}}
+
+### 我的订单
+GET http://localhost:8080/api/orders/mine
+Authorization: Bearer {{token}}

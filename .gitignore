@@ -1,0 +1,9 @@
+.idea/
+target/
+*.iml
+*.log
+logs/
+data/
+*.class
+/.DS_Store
+/repository/
