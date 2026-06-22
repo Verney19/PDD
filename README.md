@@ -4,7 +4,9 @@
 
 这是一个 Spring Cloud 微服务项目，模拟 618 手机大促：总库存 100000 台，其中 90000 台通过秒杀售卖，10000 台通过抽奖发放。项目覆盖网关鉴权、库存预热、Redis Lua 原子扣减、RabbitMQ 削峰异步下单、MyBatis-Plus 持久化、Nacos 注册发现、Docker Compose 本地环境和原生前端页面。
 
-
+<div align="center">
+  <img src="img.png" width="600" alt="img">
+</div>
 
 ## 技术栈
 
