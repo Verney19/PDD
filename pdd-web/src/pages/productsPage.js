@@ -1,203 +1,289 @@
 (function () {
     const PDD = window.PDD;
-    const { escapeHtml, number, money, displayProductName } = PDD.utils;
+    const { escapeHtml, number, money } = PDD.utils;
 
-    const MARKET_PRODUCTS = {
-        phone: {
-            title: 'iPhone 17',
-            marketPrice: 5999,
-            note: 'Apple 官网参考价 RMB 5,999 起',
-            coupons: [
-                { label: '不使用券', type: 'none', value: 0 },
-                { label: '秒杀活动价', type: 'price', value: 2999 },
-                { label: '1000 元代金券', type: 'amount', value: 1000 },
-                { label: '三等奖券', type: 'amount', value: 1000 }
-            ]
-        },
-        laptop: {
-            title: 'MacBook Pro M4',
-            marketPrice: 13499,
-            note: 'Apple 官网参考价 RMB 13,499 起',
-            coupons: [
-                { label: '不使用券', type: 'none', value: 0 },
-                { label: '1 折资格', type: 'discount', value: 0.1 },
-                { label: '2 折资格', type: 'discount', value: 0.2 },
-                { label: '3 折资格', type: 'discount', value: 0.3 },
-                { label: '5 折资格', type: 'discount', value: 0.5 },
-                { label: '7 折资格', type: 'discount', value: 0.7 },
-                { label: '9 折资格', type: 'discount', value: 0.9 },
-                { label: '2000 元 Mac 券', type: 'amount', value: 2000 },
-                { label: '1000 元 Mac 券', type: 'amount', value: 1000 }
-            ]
-        }
+    const CATEGORIES = [
+        { value: '',        label: '全部' },
+        { value: 'DIGITAL',       label: '数码' },
+        { value: 'DAILY_GOODS',   label: '日用商品' },
+        { value: 'FRUITS',        label: '水果' }
+    ];
+
+    const CATEGORY_LABEL = {
+        DIGITAL:     '数码',
+        DAILY_GOODS: '日用商品',
+        FRUITS:      '水果'
     };
+
+    const CATEGORY_BADGE = {
+        DIGITAL:     'digital',
+        DAILY_GOODS: 'daily',
+        FRUITS:      'fruit'
+    };
+
+    let currentCategory = '';
 
     async function render(container) {
         if (!PDD.state.isAuthenticated()) {
-            container.innerHTML = PDD.components.loginRequired('登录后即可查看本场活动商品。');
+            container.innerHTML = PDD.components.loginRequired('登录后即可浏览商品中心。');
             return;
         }
 
-        const products = await PDD.api.products.list();
-        PDD.state.data.products = Array.isArray(products) ? products : [];
+        await loadProducts();
+
+        const isAdmin = PDD.state.data.user && PDD.state.data.user.role === 'ADMIN';
 
         container.innerHTML = `
             <div class="section-title">
                 <div>
-                    <h3>活动商品</h3>
-                    <p>展示本项目手机和电脑商品，选择折扣券后可实时查看券后价。</p>
+                    <h3>商品中心</h3>
+                    <p>数码、日用商品、水果 — 查看和管理全部商品</p>
                 </div>
-                <button id="reloadProducts" class="secondary-button">刷新商品</button>
+                <div class="actions">
+                    <button id="reloadProductsBtn" class="secondary-button">刷新商品</button>
+                    ${isAdmin ? '<button id="addProductBtn">添加商品</button>' : ''}
+                </div>
             </div>
-            <div class="product-list">
-                ${renderProducts()}
+            <div class="activity-tabs" id="categoryTabs">
+                ${CATEGORIES.map((cat, idx) => `
+                    <button class="activity-tab${idx === 0 ? ' active' : ''}"
+                            data-category="${escapeHtml(cat.value)}">${escapeHtml(cat.label)}</button>
+                `).join('')}
             </div>
+            <div id="productGrid" class="product-grid">
+                ${renderProductCards(isAdmin)}
+            </div>
+            <div id="productModal" class="modal-overlay hidden"></div>
         `;
-        container.querySelector('#reloadProducts').addEventListener('click', () => PDD.router.refresh());
-        container.querySelectorAll('[data-coupon-select]').forEach((select) => {
-            select.addEventListener('change', () => updateCouponPrice(select));
-            updateCouponPrice(select);
-        });
+
+        bindEvents(container, isAdmin);
     }
 
-    function renderProducts() {
-        const products = normalizedProducts();
-        return products.map((product) => {
-            const kind = productKind(product);
-            const market = MARKET_PRODUCTS[kind];
-            const selected = market.coupons[0];
+    async function loadProducts() {
+        try {
+            const products = await PDD.api.products.list(currentCategory);
+            PDD.state.data.products = Array.isArray(products) ? products : [];
+        } catch (err) {
+            PDD.state.data.products = [];
+        }
+    }
+
+    function renderProductCards(isAdmin) {
+        const products = PDD.state.data.products || [];
+        if (!products.length) {
+            return `<div class="empty-state">暂无商品</div>`;
+        }
+
+        return products.map(p => {
+            const badgeClass = CATEGORY_BADGE[p.category] || 'digital';
+            const catLabel = CATEGORY_LABEL[p.category] || p.category || '未知';
+            const desc = p.description || '暂无描述';
             return `
-                <article class="card product-card product-showcase ${kind === 'laptop' ? 'laptop-product' : 'phone-product'}">
-                    <div class="product-media">
-                        ${kind === 'laptop' ? renderLaptopVisual() : renderPhoneVisual()}
+                <article class="product-grid-card" data-product-id="${p.id}">
+                    <div class="product-grid-header">
+                        <h4>${escapeHtml(p.name)}</h4>
+                        <span class="badge ${badgeClass}">${escapeHtml(catLabel)}</span>
                     </div>
-                    <div class="product-info">
-                        <div class="product-title">
-                            <h4>${escapeHtml(displayProductName(product.name))}</h4>
-                            <span class="badge lottery">${kind === 'laptop' ? 'Mac 抽奖专场' : '手机秒杀专场'}</span>
-                        </div>
-                        <div class="price-board">
-                            <div>
-                                <span>市场价</span>
-                                <strong>${money(market.marketPrice)}</strong>
-                                <small>${escapeHtml(market.note)}</small>
-                            </div>
-                            <div>
-                                <span>项目标价</span>
-                                <strong>${money(product.price)}</strong>
-                                <small>数据库商品价</small>
-                            </div>
-                            <div class="final-price-box">
-                                <span>券后价</span>
-                                <strong data-final-price="${product.id}">${money(applyCoupon(market.marketPrice, selected))}</strong>
-                                <small data-save-text="${product.id}">${escapeHtml(saveText(market.marketPrice, selected))}</small>
-                            </div>
-                        </div>
-                        <label class="coupon-control">
-                            <span>使用折扣券</span>
-                            <select data-coupon-select data-product-id="${product.id}" data-kind="${kind}">
-                                ${market.coupons.map((coupon, index) => `
-                                    <option value="${index}">${escapeHtml(coupon.label)}</option>
-                                `).join('')}
-                            </select>
-                        </label>
+                    <div class="product-grid-body">
+                        <div class="price">${money(p.price)}</div>
+                        <div class="desc">${escapeHtml(desc)}</div>
                         <div class="meta-row">
-                            <span>本场限量 ${number(product.totalStock)} 台</span>
-                            <span>当前剩余 ${number(product.availableStock)} 台</span>
+                            <span>库存 ${number(p.availableStock)} / ${number(p.totalStock)}</span>
+                            ${p.status !== undefined && p.status !== null ? `<span>${p.status === 1 ? '🟢 在售' : '⚫ 下架'}</span>` : ''}
                         </div>
-                        ${PDD.components.progress(product.availableStock, product.totalStock)}
-                        <div class="actions">
-                            <button data-go-seckill>${kind === 'laptop' ? '参与抽奖' : '立即秒杀'}</button>
-                            <button class="secondary-button" data-go-activities>查看活动</button>
-                        </div>
+                        ${PDD.components.progress(p.availableStock, p.totalStock)}
                     </div>
+                    ${isAdmin ? `
+                    <div class="product-grid-actions">
+                        <button class="secondary-button small-button edit-product-btn" data-product-id="${p.id}">编辑</button>
+                        <button class="danger-button small-button delete-product-btn" data-product-id="${p.id}">删除</button>
+                    </div>` : ''}
                 </article>
             `;
         }).join('');
     }
 
-    function normalizedProducts() {
-        if (PDD.state.data.products.length) {
-            return PDD.state.data.products;
+    function bindEvents(container, isAdmin) {
+        container.querySelector('#reloadProductsBtn').addEventListener('click', async () => {
+            await loadProducts();
+            container.querySelector('#productGrid').innerHTML = renderProductCards(isAdmin);
+            rebindCardButtons(container, isAdmin);
+        });
+
+        container.querySelectorAll('#categoryTabs .activity-tab').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                container.querySelectorAll('#categoryTabs .activity-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                await loadProducts();
+                container.querySelector('#productGrid').innerHTML = renderProductCards(isAdmin);
+                rebindCardButtons(container, isAdmin);
+            });
+        });
+
+        if (isAdmin) {
+            container.querySelector('#addProductBtn').addEventListener('click', () => {
+                showModal(container, null);
+            });
+
+            rebindCardButtons(container, isAdmin);
         }
-        return [
-            { id: 6180001, name: 'PDD 618 限量旗舰手机', price: 4999, totalStock: 100000, availableStock: 100000 },
-            { id: 6180002, name: 'MacBook Pro M4 最新款', price: 12999, totalStock: 50000, availableStock: 50000 }
+    }
+
+    function rebindCardButtons(container, isAdmin) {
+        if (!isAdmin) return;
+
+        container.querySelectorAll('.edit-product-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = Number(btn.dataset.productId);
+                const product = (PDD.state.data.products || []).find(p => p.id === id);
+                if (product) {
+                    showModal(container, product);
+                }
+            });
+        });
+
+        container.querySelectorAll('.delete-product-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = Number(btn.dataset.productId);
+                if (!confirm('确认删除该商品？')) return;
+                try {
+                    await PDD.api.products.delete(id);
+                    PDD.utils.showToast('删除成功', 'success');
+                    await loadProducts();
+                    container.querySelector('#productGrid').innerHTML = renderProductCards(isAdmin);
+                    rebindCardButtons(container, isAdmin);
+                } catch (err) {
+                    // error already shown by http.js
+                }
+            });
+        });
+    }
+
+    function showModal(container, product) {
+        const isEdit = product != null;
+        const modal = container.querySelector('#productModal');
+
+        const categories = [
+            { value: 'DIGITAL',     label: '数码' },
+            { value: 'DAILY_GOODS', label: '日用商品' },
+            { value: 'FRUITS',      label: '水果' }
         ];
-    }
 
-    function productKind(product) {
-        return /mac|book|电脑/i.test(String(product.name || '')) ? 'laptop' : 'phone';
-    }
-
-    function renderPhoneVisual() {
-        return `
-            <div class="product-phone-photo" aria-hidden="true">
-                <div class="phone-lens lens-one"></div>
-                <div class="phone-lens lens-two"></div>
-                <div class="phone-lens lens-three"></div>
-                <span>iPhone</span>
+        modal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h3>${isEdit ? '编辑商品' : '添加商品'}</h3>
+                    <button class="secondary-button small-button" id="closeModalBtn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>商品名称</label>
+                        <input type="text" id="formName" value="${isEdit ? escapeHtml(product.name) : ''}" placeholder="请输入商品名称">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>价格</label>
+                            <input type="number" id="formPrice" step="0.01" min="0" value="${isEdit ? product.price : ''}" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>类别</label>
+                            <select id="formCategory">
+                                ${categories.map(c => `
+                                    <option value="${c.value}" ${isEdit && product.category === c.value ? 'selected' : ''}>${c.label}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>总库存</label>
+                            <input type="number" id="formTotalStock" min="0" value="${isEdit ? product.totalStock : ''}" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>可用库存</label>
+                            <input type="number" id="formAvailableStock" min="0" value="${isEdit ? product.availableStock : ''}" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>描述（选填）</label>
+                        <textarea id="formDesc" placeholder="商品描述">${isEdit && product.description ? escapeHtml(product.description) : ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>图片URL（选填）</label>
+                        <input type="text" id="formImageUrl" value="${isEdit && product.imageUrl ? escapeHtml(product.imageUrl) : ''}" placeholder="https://...">
+                    </div>
+                    ${isEdit ? `
+                    <div class="form-group">
+                        <label>状态</label>
+                        <select id="formStatus">
+                            <option value="1" ${product.status === 1 ? 'selected' : ''}>在售</option>
+                            <option value="0" ${product.status === 0 ? 'selected' : ''}>下架</option>
+                        </select>
+                    </div>` : ''}
+                </div>
+                <div class="modal-footer">
+                    <button class="secondary-button" id="cancelModalBtn">取消</button>
+                    <button id="submitFormBtn">${isEdit ? '保存修改' : '创建商品'}</button>
+                </div>
             </div>
         `;
-    }
+        modal.classList.remove('hidden');
 
-    function renderLaptopVisual() {
-        return `
-            <div class="product-laptop-photo" aria-hidden="true">
-                <div class="laptop-screen"></div>
-                <div class="laptop-base"></div>
-                <span>MacBook Pro</span>
-            </div>
-        `;
-    }
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            modal.innerHTML = '';
+        };
 
-    function updateCouponPrice(select) {
-        const kind = select.dataset.kind;
-        const productId = select.dataset.productId;
-        const market = MARKET_PRODUCTS[kind];
-        const coupon = market.coupons[Number(select.value || 0)] || market.coupons[0];
-        const finalPrice = applyCoupon(market.marketPrice, coupon);
-        const priceNode = document.querySelector(`[data-final-price="${productId}"]`);
-        const saveNode = document.querySelector(`[data-save-text="${productId}"]`);
-        if (priceNode) {
-            priceNode.textContent = money(finalPrice);
-        }
-        if (saveNode) {
-            saveNode.textContent = saveText(market.marketPrice, coupon);
-        }
-    }
+        modal.querySelector('#closeModalBtn').addEventListener('click', closeModal);
+        modal.querySelector('#cancelModalBtn').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
 
-    function applyCoupon(price, coupon) {
-        if (coupon.type === 'discount') {
-            return Math.max(0, Number((price * coupon.value).toFixed(2)));
-        }
-        if (coupon.type === 'amount') {
-            return Math.max(0, price - coupon.value);
-        }
-        if (coupon.type === 'price') {
-            return Math.max(0, coupon.value);
-        }
-        return price;
-    }
+        modal.querySelector('#submitFormBtn').addEventListener('click', async () => {
+            const name = modal.querySelector('#formName').value.trim();
+            const price = modal.querySelector('#formPrice').value;
+            const category = modal.querySelector('#formCategory').value;
+            const totalStock = modal.querySelector('#formTotalStock').value;
+            const availableStock = modal.querySelector('#formAvailableStock').value;
 
-    function saveText(price, coupon) {
-        const finalPrice = applyCoupon(price, coupon);
-        const saved = Math.max(0, price - finalPrice);
-        return saved > 0 ? `已优惠 ${money(saved)}` : '未使用优惠';
-    }
+            if (!name) { PDD.utils.showToast('请输入商品名称', 'error'); return; }
+            if (!price) { PDD.utils.showToast('请输入价格', 'error'); return; }
+            if (!totalStock) { PDD.utils.showToast('请输入总库存', 'error'); return; }
+            if (!availableStock) { PDD.utils.showToast('请输入可用库存', 'error'); return; }
 
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('#appView')) {
-            return;
-        }
-        if (event.target.closest('[data-go-activities]')) {
-            PDD.router.go('activities');
-        }
-        if (event.target.closest('[data-go-seckill]')) {
-            const card = event.target.closest('.product-card');
-            PDD.router.go(card?.classList.contains('laptop-product') ? 'lottery' : 'seckill');
-        }
-    });
+            const data = {
+                name: name,
+                price: Number(price),
+                totalStock: Number(totalStock),
+                availableStock: Number(availableStock),
+                category: category,
+                description: modal.querySelector('#formDesc').value.trim() || null,
+                imageUrl: modal.querySelector('#formImageUrl').value.trim() || null
+            };
+
+            if (isEdit) {
+                data.status = Number(modal.querySelector('#formStatus').value);
+            }
+
+            try {
+                if (isEdit) {
+                    await PDD.api.products.update(product.id, data);
+                    PDD.utils.showToast('商品更新成功', 'success');
+                } else {
+                    await PDD.api.products.create(data);
+                    PDD.utils.showToast('商品创建成功', 'success');
+                }
+                closeModal();
+                await loadProducts();
+                container.querySelector('#productGrid').innerHTML = renderProductCards(true);
+                rebindCardButtons(container, true);
+            } catch (err) {
+                // error already shown by http.js
+            }
+        });
+    }
 
     PDD.router.register('products', { render });
 })();

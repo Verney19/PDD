@@ -18,6 +18,10 @@ public class Product {
     private BigDecimal price;
     private Integer totalStock;
     private Integer availableStock;
+    private String category;
+    private String description;
+    private String imageUrl;
+    private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -89,6 +93,62 @@ public class Product {
      */
     public void setAvailableStock(Integer availableStock) {
         this.availableStock = availableStock;
+    }
+
+    /**
+     * 获取商品类别。
+     */
+    public String getCategory() {
+        return category;
+    }
+
+    /**
+     * 设置商品类别。
+     */
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    /**
+     * 获取商品描述。
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * 设置商品描述。
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * 获取商品图片URL。
+     */
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    /**
+     * 设置商品图片URL。
+     */
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    /**
+     * 获取商品状态。
+     */
+    public Integer getStatus() {
+        return status;
+    }
+
+    /**
+     * 设置商品状态。
+     */
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     /**

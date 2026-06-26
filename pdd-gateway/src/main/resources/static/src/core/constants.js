@@ -9,7 +9,7 @@
             },
             products: {
                 title: '商品中心',
-                subtitle: '甄选限量手机，查看本场可参与权益'
+                subtitle: '数码、日用商品、水果 — 查看和管理全部商品'
             },
             activities: {
                 title: '活动中心',

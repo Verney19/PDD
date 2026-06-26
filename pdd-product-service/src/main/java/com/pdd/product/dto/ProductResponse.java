@@ -7,6 +7,10 @@ public record ProductResponse(
         String name,
         BigDecimal price,
         Integer totalStock,
-        Integer availableStock
+        Integer availableStock,
+        String category,
+        String description,
+        String imageUrl,
+        Integer status
 ) {
 }

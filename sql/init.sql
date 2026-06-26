@@ -25,8 +25,13 @@ create table pdd_product
     price           decimal(10, 2) not null,
     total_stock     int            not null,
     available_stock int            not null,
+    category        varchar(32)    not null default 'DIGITAL' comment '商品类别: DIGITAL/DAILY_GOODS/FRUITS',
+    description     varchar(512)   null comment '商品描述',
+    image_url       varchar(256)   null comment '商品图片URL',
+    status          tinyint        not null default 1 comment '1=在售 0=下架',
     created_at      datetime       not null default current_timestamp,
-    updated_at      datetime       not null default current_timestamp on update current_timestamp
+    updated_at      datetime       not null default current_timestamp on update current_timestamp,
+    key idx_product_category (category)
 ) engine = InnoDB default charset = utf8mb4;
 
 create table pdd_activity
@@ -89,9 +94,15 @@ insert into pdd_user (id, username, password, role)
 values (10001, 'demo', md5('123456'), 'USER'),
        (10002, 'admin', md5('123456'), 'ADMIN');
 
-insert into pdd_product (id, name, price, total_stock, available_stock)
-values (6180001, 'PDD 618 限量旗舰手机', 4999.00, 100000, 100000),
-       (6180002, 'MacBook Pro M4 最新款', 12999.00, 50000, 50000);
+insert into pdd_product (id, name, price, total_stock, available_stock, category, description, status)
+values (6180001, 'PDD 618 限量旗舰手机', 4999.00, 100000, 100000, 'DIGITAL', '618 大促旗舰手机，搭载最新处理器与 AI 影像系统', 1),
+       (6180002, 'MacBook Pro M4 最新款', 12999.00, 50000, 50000, 'DIGITAL', 'Apple M4 芯片，16 英寸 Liquid Retina XDR 显示屏', 1),
+       (6180003, 'PDD 精选洗发水 500ml', 39.90, 50000, 50000, 'DAILY_GOODS', '温和洁净，适合日常使用的氨基酸洗发水', 1),
+       (6180004, 'PDD 抽纸 10 包装', 19.90, 100000, 100000, 'DAILY_GOODS', '三层加厚，柔软亲肤不掉屑', 1),
+       (6180005, 'PDD 洗衣液 2kg', 29.90, 80000, 80000, 'DAILY_GOODS', '深层去渍，持久留香，母婴可用', 1),
+       (6180006, '海南妃子笑荔枝 2.5kg', 49.90, 30000, 30000, 'FRUITS', '新鲜采摘，顺丰冷链直达，甜嫩多汁', 1),
+       (6180007, '智利车厘子 JJ 级 1kg', 79.90, 20000, 20000, 'FRUITS', '进口车厘子，颗颗精选，脆甜爽口', 1),
+       (6180008, '新疆哈密瓜 2 个装', 39.90, 40000, 40000, 'FRUITS', '产地直发，香甜多汁，正宗西州蜜', 1);
 
 insert into pdd_activity (id, product_id, type, activity_price, total_stock, available_stock, start_time, end_time, status)
 values (900001, 6180001, 'SECKILL', 2999.00, 90000, 90000, '2026-06-18 20:00:00', '2026-06-18 20:45:00', 1),

@@ -1575,6 +1575,180 @@ th {
     align-items: center;
 }
 
+/* ---- Product grid ---- */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.product-grid-card {
+    display: grid;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--soft-shadow);
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.product-grid-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.product-grid-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.product-grid-header h4 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.product-grid-body {
+    display: grid;
+    gap: 10px;
+}
+
+.product-grid-body .price {
+    color: var(--red);
+    font-size: 28px;
+    font-weight: 900;
+}
+
+.product-grid-body .desc {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.product-grid-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* ---- Modal ---- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    background: rgba(17, 24, 39, 0.48);
+}
+
+.modal-dialog {
+    width: min(520px, calc(100vw - 40px));
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 24px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 19px;
+}
+
+.modal-body {
+    display: grid;
+    gap: 14px;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+/* ---- Form ---- */
+.form-group {
+    display: grid;
+    gap: 6px;
+}
+
+.form-group label {
+    color: var(--muted);
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.form-group textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font: inherit;
+    resize: vertical;
+}
+
+.form-group select {
+    min-height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    padding: 8px 12px;
+    font: inherit;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* ---- Badge variants ---- */
+.badge.daily {
+    background: rgba(37, 99, 235, 0.10);
+    color: var(--blue);
+}
+
+.badge.fruit {
+    background: rgba(16, 147, 111, 0.12);
+    color: var(--green);
+}
+
+.badge.digital {
+    background: rgba(226, 50, 69, 0.10);
+    color: var(--red);
+}
+
+/* ---- Danger button ---- */
+.danger-button {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid currentColor;
+    box-shadow: none;
+}
+
+.danger-button:hover {
+    background: rgba(226, 50, 69, 0.08);
+    box-shadow: none;
+}
+
+.small-button {
+    min-height: 32px;
+    padding: 5px 10px;
+    font-size: 13px;
+}
+
 @media (max-width: 1160px) {
     .metrics,
     .card-grid,
